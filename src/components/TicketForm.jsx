@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Card from './ui/Card';
 import Input from './ui/Input';
 import Select from './ui/Select';
 import Button from './ui/Button';
 
-const TicketForm = ({ onSubmit }) => {
+const TicketForm = ({ onSubmit, currentUserPS }) => {
     const [formData, setFormData] = useState({
-        psNumber: '',
+        // psNumber handled by parent
         email: '',
         department: 'IT',
         priority: 'Medium',
@@ -29,7 +29,6 @@ const TicketForm = ({ onSubmit }) => {
 
     const validate = () => {
         const newErrors = {};
-        if (!formData.psNumber.trim()) newErrors.psNumber = 'PS Number is required';
         if (!formData.email.trim()) newErrors.email = 'Email is required';
         if (!formData.subject.trim()) newErrors.subject = 'Subject is required';
         return newErrors;
@@ -46,10 +45,11 @@ const TicketForm = ({ onSubmit }) => {
         setIsSubmitting(true);
         await new Promise(resolve => setTimeout(resolve, 800));
 
+        // Pass formData up, parent adds PS Number
         onSubmit(formData);
+
         if (document.body.contains(e.target)) {
             setFormData({
-                psNumber: formData.psNumber,
                 email: formData.email,
                 department: 'IT',
                 priority: 'Medium',
@@ -62,17 +62,17 @@ const TicketForm = ({ onSubmit }) => {
 
     return (
         <Card className="animate-fade-in">
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1.5rem' }}>Create New Ticket</h2>
+            <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '600' }}>Create New Ticket</h2>
+                {currentUserPS && (
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', background: '#334155', padding: '0.2rem 0.6rem', borderRadius: '4px' }}>
+                        PS: {currentUserPS}
+                    </span>
+                )}
+            </div>
+
             <form onSubmit={handleSubmit}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-                    <Input
-                        id="psNumber"
-                        label="PS Number (Employee ID)"
-                        placeholder="e.g. 123456"
-                        value={formData.psNumber}
-                        onChange={handleChange}
-                        error={errors.psNumber}
-                    />
                     <Input
                         id="email"
                         label="Email Address"
@@ -81,21 +81,6 @@ const TicketForm = ({ onSubmit }) => {
                         value={formData.email}
                         onChange={handleChange}
                         error={errors.email}
-                    />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-                    <Select
-                        id="priority"
-                        label="Priority"
-                        value={formData.priority}
-                        onChange={handleChange}
-                        options={[
-                            { value: 'Low', label: 'Low - Routine Request' },
-                            { value: 'Medium', label: 'Medium - Standard Issue' },
-                            { value: 'High', label: 'High - Urgent Work Blocker' },
-                            { value: 'Critical', label: 'Critical - System Outage' }
-                        ]}
                     />
                     <Select
                         id="department"
@@ -113,7 +98,19 @@ const TicketForm = ({ onSubmit }) => {
                     />
                 </div>
 
-                <div style={{ marginBottom: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+                    <Select
+                        id="priority"
+                        label="Priority"
+                        value={formData.priority}
+                        onChange={handleChange}
+                        options={[
+                            { value: 'Low', label: 'Low - Routine Request' },
+                            { value: 'Medium', label: 'Medium - Standard Issue' },
+                            { value: 'High', label: 'High - Urgent Work Blocker' },
+                            { value: 'Critical', label: 'Critical - System Outage' }
+                        ]}
+                    />
                     <Input
                         id="attachment"
                         label="Attachment (Optional)"
