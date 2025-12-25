@@ -3,22 +3,18 @@ import Card from './ui/Card';
 import Input from './ui/Input';
 import Button from './ui/Button';
 
-const UserLogin = ({ onLogin }) => {
+const UserLogin = ({ onLogin, isLoading }) => {
     const [psNumber, setPsNumber] = useState('');
+    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!psNumber.trim()) {
-            setError('Please enter your PS Number');
+        if (!psNumber.trim() || !password.trim()) {
+            setError('Please enter both PS Number and Password');
             return;
         }
-        // Simple validation: must be somewhat valid
-        if (psNumber.length < 3) {
-            setError('PS Number must be at least 3 characters');
-            return;
-        }
-        onLogin(psNumber);
+        onLogin(psNumber, password);
     };
 
     return (
@@ -28,24 +24,33 @@ const UserLogin = ({ onLogin }) => {
                     Welcome
                 </h2>
                 <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '2rem' }}>
-                    Please enter your PS Number to continue
+                    PS IT Support Portal
                 </p>
 
                 <form onSubmit={handleSubmit}>
                     <Input
-                        label="PS Number (Employee ID)"
+                        label="PS Number"
                         placeholder="e.g. 123456"
                         value={psNumber}
-                        onChange={(e) => {
-                            setPsNumber(e.target.value);
-                            setError('');
-                        }}
+                        onChange={(e) => { setPsNumber(e.target.value); setError(''); }}
+                    />
+
+                    <Input
+                        label="Password"
+                        type="password"
+                        placeholder="Enter password"
+                        value={password}
+                        onChange={(e) => { setPassword(e.target.value); setError(''); }}
                         error={error}
                     />
 
-                    <Button type="submit" style={{ width: '100%', marginTop: '1rem' }}>
-                        Access Portal
+                    <Button type="submit" style={{ width: '100%', marginTop: '1rem' }} disabled={isLoading}>
+                        {isLoading ? 'Verifying...' : 'Login'}
                     </Button>
+
+                    <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+                        First time? Use <strong>123456</strong> as password.
+                    </p>
                 </form>
             </Card>
         </div>
